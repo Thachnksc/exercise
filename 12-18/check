@@ -1,0 +1,20 @@
+
+let users = [
+    { username: "admin", password: "123", role: "admin" },
+    { username: "staff", password: "456", role: "staff" },
+    { username: "staff1", password: "789", role: "staff" },
+    { username: "staff2", password: "111", role: "staff" }
+];
+
+
+function checkName(name){
+    for (let i = 0; i < users.length; i++){
+        if (users[i].username === name){
+            return ("đã có tên trong hệ thống");
+        }
+    }
+    return ("chưa có tên trong hệ thống");
+}
+
+console.log(checkName("staff1"));
+console.log(checkName("staff400"));

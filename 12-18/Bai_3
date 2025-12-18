@@ -1,0 +1,24 @@
+// Tính tổng điểm
+// Tìm điểm lớn nhất
+
+
+let scores = [5, 7, 9, 4, 8];
+
+let total = 0;
+let max = scores[0];
+
+for(let i =0;i < scores.length; i++){
+    total += scores[i];
+}
+
+console.log("Tổng điểm:", total);
+
+
+
+for(let i =0;i < scores.length; i++){
+    if (scores[i] > max){
+        max = scores[i];
+    }
+}
+
+console.log("Điểm cao nhất:", max);

@@ -1,0 +1,51 @@
+//
+let users = [
+    { username: "admin", password: "123", role: "admin" },
+    { username: "staff", password: "456", role: "staff" },
+    { username: "staff1", password: "789", role: "staff" },
+    { username: "staff2", password: "111", role: "staff" }
+];
+
+
+// logic
+function login(user, pass){
+    for (let i = 0; i < users.length; i++){
+        if (users[i].username === user && users[i].password === pass ) {
+            return "login Success";
+        }
+    }
+    return "login failed";
+}
+
+
+console.log(login("admin", "123"));
+console.log(login("admin", "111"));
+
+
+// Tìm user theo role
+
+function findByRole(rolefind){
+    let find = [];
+    for (let i = 0; i < users.length; i++){
+        if (users[i].role === rolefind){
+            find.push(users[i]);
+        }
+    }
+    return find;
+}
+
+console.log(findByRole("staff"));
+
+
+// Check Tên user đã có trong hệ thống chưa
+function checkName(name){
+    for (let i = 0; i < users.length; i++){
+        if (users[i].username === name){
+            return ("đã có tên trong hệ thống");
+        }
+    }
+    return ("chưa có tên trong hệ thống");
+}
+
+console.log(checkName("staff1"));
+console.log(checkName("staff400"));

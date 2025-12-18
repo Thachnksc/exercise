@@ -1,0 +1,12 @@
+// Function check Even, Odd
+
+function checkEvenOdd(number){
+    if (number % 2 === 0){
+        console.log(number + " là Even");
+    } else {
+        console.log(number + " là Odd");
+    }
+}
+
+checkEvenOdd(4);
+checkEvenOdd(7);
