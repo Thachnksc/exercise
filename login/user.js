@@ -1,19 +1,13 @@
-let users = [
-    { username: "admin", password: "123", role: "admin" },
-    { username: "staff", password: "345", role: "staff" },
-    { username: "long", password: "567", role: "staff" },
-    { username: "nam", password: "111", role: "guest" }
-];
+const db = require("./db");
 
-//check account login
-function login(user, pass){
-    for(let acc of users){
-        if(acc.username === user && acc.password === pass){
-            return acc;
-        }
+async function login(username, password) {
+    const[row] = await db.query( "SELECT * FROM users WHERE username=? AND password=?", [username, password]);
+    if (row.length === 0) {
+        return null;
     }
-    return null;
+    return row[0];
 }
+
 
 module.exports = {
     login
