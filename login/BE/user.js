@@ -8,7 +8,12 @@ async function login(username, password) {
     return row[0];
 }
 
+async function getAllUsers() {
+    const [rows] = await db.query("SELECT id, username, role FROM users");
+    return rows;
+}
 
 module.exports = {
-    login
+    login,
+    getAllUsers
 }

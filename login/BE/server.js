@@ -2,10 +2,11 @@
 const express = require("express");
 const cors = require("cors"); 
 const jwt = require("jsonwebtoken");
-
+const path = require("path");
 
 const userServer = require("./user");
 
+require('dotenv').config();
 
 //tạo server
 const app = express();
@@ -13,8 +14,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// khóa bảo mật token - nên chuyển sang .env
-const SECRET_KEY = "fj3S!8df9A@#123kdls9s0dk";
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "../FE/login.html"));
+});
+
+app.get("/users", (req, res) => {
+    res.sendFile(path.join(__dirname, "../FE/users.html"));
+});
+
+
+// khóa bảo mật token
+const SECRET_KEY = process.env.SECRET_KEY;
 
 
 //login
@@ -38,6 +48,7 @@ app.post("/login", async(req, res) =>{
 
     res.json({
         message: "login success",
+        token,
         user: {
             id: acc.id,
             username: acc.username,
@@ -67,8 +78,12 @@ function authMiddleware(req, res, next){
 }
 
 // USERS
-app.get("/users", async (req, res) => {
-    const users = await userService.getAllUsers();
+app.get("/users", authMiddleware, async (req, res) => {
+    if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Forbidden: Admin only" });
+    }
+
+    const users = await userServer.getAllUsers();
     res.json(users);
 });
 
