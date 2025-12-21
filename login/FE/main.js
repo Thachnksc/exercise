@@ -1,4 +1,4 @@
-// --- LOGIN ---
+// LOGIN
 const loginForm = document.getElementById("loginForm");
 const resultDiv = document.getElementById("result");
 
@@ -30,7 +30,7 @@ if (loginForm) {
     });
 }
 
-// --- USERS ---
+// USERS
 const userList = document.getElementById("userList");
 if (userList) {
     async function fetchUsers() {
@@ -68,7 +68,7 @@ if (userList) {
     fetchUsers();
 }
 
-// --- LOGOUT ---
+// LOGOUT 
 const logoutBtn = document.getElementById("logout");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
