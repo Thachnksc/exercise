@@ -36,7 +36,7 @@ class userService {
     }
 
     // get all student and Score
-    async getStudentsScore() {
+    async getAllStudentsScore() {
         const data = await userRepository.findStudentScore();
         return {
             total: data.length,
@@ -84,7 +84,7 @@ class userService {
 
     // Create student
     async createStudent(studentData) {
-        const exists = await userRepository.checkStudentExist(studentData.userName);
+        const exists = await userRepository.findByName(studentData.userName);
 
         if (exists) {
             return {
@@ -101,6 +101,27 @@ class userService {
             student
         };
     }
+
+
+    async getScoreById(userId){
+        const data = await this.getAllStudentsScore();  
+
+        const list = data.students.filter(s => s.userId === userId);
+
+        if(list.length === 0) {
+            return null;
+        };
+
+        return {
+            userId: list[0].userId,
+            userName: list[0].userName,
+            roleName: list[0].roleName,
+            scores: list
+                .map(s => s.score)
+                .filter(score => score !== null)
+        };
+    }
+
 
 
 }

@@ -19,9 +19,9 @@ async function loginController(req, res) {
     
 }
 
-async function getStudentsScoreController(req, res) {
+async function getAllStudentsScoreController(req, res) {
     try {
-        const result = await userService.getStudentsScore();
+        const result = await userService.getAllStudentsScore();
         res.json(result);
     } catch (err) {
         console.error(err);
@@ -45,7 +45,7 @@ async function checkStudentExistController(req, res) {
         const { name } = req.params;
         const result = await userService.checkStudentExist(name);
         res.json(result);
-    } catch (error) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
     }
@@ -66,11 +66,27 @@ async function createStudentController(req, res) {
     }
 }
 
+async function getScoreByIdController(req, res) {
+    try{
+        const result = await userService.getScoreById(req.user.userId);
+
+        if(!result){
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        res.json(result);
+
+    }catch(err){
+        console.log(err);
+        res.status(500).json({ message: "Server error" });
+    }
+}
 
 module.exports = {
     loginController, 
-    getStudentsScoreController,
+    getAllStudentsScoreController,
     getScoreStatsController,
     checkStudentExistController,
-    createStudentController
+    createStudentController,
+    getScoreByIdController
 };
