@@ -1,5 +1,6 @@
 const userRepository = require("../Repository/users.repository");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt"); 
 
 require('dotenv').config();
 
@@ -14,7 +15,8 @@ class userService {
             return null;
         }
 
-        if (user.password !== password){
+        const match = await bcrypt.compare(password, user.password);
+        if (!match ){
             return null;
         }
 
@@ -29,6 +31,17 @@ class userService {
         return { user, token };
     }
 
+    // Kiểm tra mật khẩu mạnh
+    validatePassword(password) {
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+        return strongRegex.test(password);
+    }
+
+    // Kiểm tra userId format
+    validateUserId(userId) {
+        const regex = /^[a-zA-Z0-9]{4,10}$/;
+        return regex.test(userId);
+    }
      
     // Get all user
     async getAllUser(){
@@ -84,6 +97,19 @@ class userService {
 
     // Create student
     async createStudent(studentData) {
+        const { userId, userName, password } = studentData;
+
+        // Validate userId
+        if (!this.validateUserId(userId)) {
+        return { success: false, message: "Invalid userId format (4-10 alphanumeric)" };
+        }
+
+        // Validate password
+        if (!this.validatePassword(password)) {
+        return { success: false, message: "Password must be 8+ chars, include upper, lower, number, special char" };
+        }    
+
+        // Check userName trùng
         const exists = await userRepository.findByName(studentData.userName);
 
         if (exists) {
@@ -93,18 +119,23 @@ class userService {
             };
         }
 
-        const student = await userRepository.createStudent(studentData);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await userRepository.createStudent({ userId, userName, password: hashedPassword });
 
         return {
             success: true,
             message: "Student created successfully",
-            student
+            student: { userId, userName } 
         };
     }
 
 
     async getScoreById(userId){
         const data = await this.getAllStudentsScore();  
+        
+        if (!this.validateUserId(userId)) {
+            return { success: false, message: "Invalid userId format (4-10 alphanumeric)" };
+        }
 
         const list = data.students.filter(s => s.userId === userId);
 
