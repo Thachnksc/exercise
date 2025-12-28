@@ -53,11 +53,11 @@ Cài đặt và chạy project
 ## Cấu trúc API
 Method	 Endpoint	                 Mô tả	                           Auth/Role
 POST	   /login	                   Đăng nhập	                       Không
-GET	    /students	                Lấy danh sách sinh viên + điểm	  Admin
+GET	     /students	               Lấy danh sách sinh viên + điểm	   Admin
 POST	   /students/create	         Tạo sinh viên mới	               Admin
-GET	    /students/stats	          Lấy thống kê điểm	               Admin
-GET	    /score	                   Lấy điểm sinh viên hiện tại	     User/Admin
-GET	    /students/check/:name	    Kiểm tra sinh viên tồn tại	      Admin
+GET	     /students/stats	         Lấy thống kê điểm	               Admin
+GET	     /score	                   Lấy điểm sinh viên hiện tại	     User/Admin
+GET	     /students/check/:name	   Kiểm tra sinh viên tồn tại	       Admin
 
 
 ## Testing API
