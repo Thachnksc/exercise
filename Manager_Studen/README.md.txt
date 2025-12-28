@@ -8,36 +8,29 @@
 - Database: MySQL, dễ thao tác với bảng users, scores.
 - JWT cho authentication để phân quyền admin/student.
 - Repository/Service pattern giúp tách rõ logic business (service) và database (repository).
+- test: postman, Testing  API
 
 ## Cấu trúc dự án
+/BE
+  /config         # DB, config môi trường
+  /Controller     # Xử lý request & response
+  /Repository     # Truy vấn DB
+  /Service        # Logic nghiệp vụ
+  /Models         # Các class mô hình dữ liệu
+  /middlewares    # Auth, kiểm tra role
+  index.js        # Entry point
 
-project-root/
-├─ BE/                         # Backend
-│  ├─ config/                 # Config hệ thống
-│  │   └─ db.js               # Config kết nối DB
-│  ├─ Models/                 # Định nghĩa các model dữ liệu
-│  ├─ Repository/             # Giao tiếp DB (CRUD)
-│  ├─ Service/                # Logic nghiệp vụ (business logic)
-│  ├─ Controller/             # Nhận request, gọi service, trả response
-│  ├─ middlewares/            # Middleware (auth, role check)
-│  ├─ .env                    # Biến môi trường
-│  └─ app.js                  # Entry point server
-│
-├─ FE/                        # Frontend React
-│  ├─ components/             # Các component React
-│  ├─ pages/                  # Các page (AdminPage, LoginPage,...)
-│  ├─ api/                    # Axios instance + interceptors
-│  ├─ utils/                  # Helpers frontend (auth, token)
-│  └─ App.jsx                 # Root React component
-│
-├─ package.json
-└─ README.md
+/FE
+  /components     # React components
+  /pages          # Các page (AdminPage, LoginPage...)
+  /api            # axios instance, interceptors
+  /utils          # helper (auth, token)
+  App.jsx
+  index.js
 
 
 Cài đặt và chạy project
-
 ### Backend
-
 1. Cài dependencies
  cd BE
  npm install
@@ -55,6 +48,24 @@ Cài đặt và chạy project
 
 2. Chạy frontend
  npm start
+
+
+## Cấu trúc API
+Method	 Endpoint	                 Mô tả	                           Auth/Role
+POST	   /login	                   Đăng nhập	                       Không
+GET	    /students	                Lấy danh sách sinh viên + điểm	  Admin
+POST	   /students/create	         Tạo sinh viên mới	               Admin
+GET	    /students/stats	          Lấy thống kê điểm	               Admin
+GET	    /score	                   Lấy điểm sinh viên hiện tại	     User/Admin
+GET	    /students/check/:name	    Kiểm tra sinh viên tồn tại	      Admin
+
+
+## Testing API
+Postman: import collection, test từng route.
+Ex:  curl -X POST http://localhost:3000/login \
+     -H "Content-Type: application/json" \
+     -d '{"userName": "admin", "password": "Admin@123"}'
+
 
 
 
