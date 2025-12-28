@@ -25,9 +25,11 @@ export default function CreateStudentForm({ onCreate }) {
 
     setSuccess(res.data.message);
 
-        onCreate?.({ userId, userName, score: null });
+    onCreate?.({ userId, userName, score: null });
 
-    // setUserId(""); setUserName(""); setPassword("");
+    setUserId(""); 
+    setUserName(""); 
+    setPassword("");
 
   } catch (err) {
 
