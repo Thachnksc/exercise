@@ -1,15 +1,16 @@
 const userRepository = require("../Repository/users.repository");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt"); 
+const bcrypt = require("bcrypt");
+const z = require("zod");
 
 require('dotenv').config();
-
 const SECRET_KEY = process.env.SECRET_KEY;
 
 class userService {
+
     // Login
     async login(userName, password){
-        const user = await userRepository.findByName(userName);
+        const user = await userRepository.findByUserName(userName);
 
         if (!user){
             return null;
@@ -23,137 +24,146 @@ class userService {
         const token = jwt.sign(
             { 
                 userId: user.userId,
-                roleName: user.roleName
+                roleId: user.role.roleId,
+                roleName: user.role.roleName
             },
             SECRET_KEY,
             {expiresIn: "1h"}
         );
-        return { user, token };
+
+        const safeUser = {
+            userId: user.userId,
+            userName: user.userName,
+            roleId: user.role.roleId,
+            roleName: user.role.roleName
+        };
+
+        return { 
+            message: "Login success",
+            user: safeUser, 
+            token 
+        };
     }
 
-    // Kiểm tra mật khẩu mạnh
+    // Kiểm tra mật khẩu mạnh với Zod 
     validatePassword(password) {
-        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-        return strongRegex.test(password);
+        return z
+            .string()
+            .min(8)
+            .regex(/[A-Z]/)
+            .regex(/[0-9]/)
+            .safeParse(password);
     }
 
-    // Kiểm tra userId format
+    // Kiểm tra userId format với Zod 
     validateUserId(userId) {
-        const regex = /^[a-zA-Z0-9]{4,10}$/;
-        return regex.test(userId);
-    }
-     
-    // Get all user
-    async getAllUser(){
-        return await userRepository.findAll();
+        return z
+            .string()
+            .min(3)
+            .max(15)
+            .regex(/^[a-zA-Z0-9]+$/)
+            .safeParse(userId);
     }
 
     // get all student and Score
     async getAllStudentsScore() {
-        const data = await userRepository.findStudentScore();
+        const students = await userRepository.findStudentsWithScore();
         return {
-            total: data.length,
-            students: data
+            total: students.length,
+            students: students.map(s => ({
+                userId: s.userId,
+                userName: s.userName,
+                roleName: s.role.roleName,
+                scores: s.scores.map(sc => sc.score)
+            }))
         };
     }
 
     // get Score with total, max, min, avg 
     async getScoreStats() {
-        const stats = await userRepository.getScoreStatsRepo();
-
-        let averageScore = 0;
-
-        if (stats.avg_score) {
-            const avgNumber = parseFloat(stats.avg_score);
-            const roundedString = avgNumber.toFixed(2);
-            averageScore = Number(roundedString);
-        }
+        const stats = await userRepository.getScoreStats();
 
         return {
-            totalStudentsHaveScore: stats.total_students_have_score || 0,
-            totalScore: Number(stats.total_score) || 0,
-            highestScore: Number(stats.max_score) || 0,
-            lowestScore: Number(stats.min_score) || 0,
-            averageScore
-        };
-    }
-
-    // check student exist
-    async checkStudentExist(name) {
-        const student = await userRepository.findByName(name);
-
-        if (!student) {
-            return {
-                exists: false,
-                message: "Student not found"
-            };
-        }
-
-        return {
-            exists: true,
-            student
+        totalStudentsHaveScore: stats._count.score ?? 0,
+        totalScore: stats._sum.score ?? 0,
+        highestScore: stats._max.score ?? 0,
+        lowestScore: stats._min.score ?? 0,
+        averageScore: Number((stats._avg.score ?? 0).toFixed(2))
         };
     }
 
     // Create student
-    async createStudent(studentData) {
-        const { userId, userName, password } = studentData;
+    async createStudent({ userId, userName, password }) {
 
         // Validate userId
-        if (!this.validateUserId(userId)) {
-        return { success: false, message: "Invalid userId format (4-10 alphanumeric)" };
+        const idCheck = this.validateUserId(userId);
+        if (!idCheck.success) {
+            return { success: false, errors: idCheck.error.errors };
         }
 
         // Validate password
-        if (!this.validatePassword(password)) {
-        return { success: false, message: "Password must be 8+ chars, include upper, lower, number, special char" };
-        }    
+        const passCheck = this.validatePassword(password);
+        if (!passCheck.success) {
+            return { success: false, errors: passCheck.error.errors };
+        }
+   
 
         // Check userName trùng
-        const exists = await userRepository.findByName(studentData.userName);
-
-        if (exists) {
+        const existed = await userRepository.findByUserName(userName);
+        if (existed) {
             return {
                 success: false,
-                message: "Student name already exists"
+                message: "Username already exists"
             };
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await userRepository.createStudent({ userId, userName, password: hashedPassword });
+
+        const student = await userRepository.createStudent({
+            userId,
+            userName,
+            password: hashedPassword,
+        });
 
         return {
             success: true,
-            message: "Student created successfully",
-            student: { userId, userName } 
+            student: {
+                userId: student.userId,
+                userName: student.userName
+            }
         };
     }
 
 
     async getScoreById(userId){
-        const data = await this.getAllStudentsScore();  
-        
-        if (!this.validateUserId(userId)) {
-            return { success: false, message: "Invalid userId format (4-10 alphanumeric)" };
-        }
+        const student = await prisma.user.findUnique({
+            where: { userId },
+            include: { scores: true, role: true }
+        });
 
-        const list = data.students.filter(s => s.userId === userId);
-
-        if(list.length === 0) {
-            return null;
-        };
+        if(!student) return null;
 
         return {
-            userId: list[0].userId,
-            userName: list[0].userName,
-            roleName: list[0].roleName,
-            scores: list
-                .map(s => s.score)
-                .filter(score => score !== null)
+            userId: student.userId,
+            userName: student.userName,
+            roleName: student.role.roleName,
+            scores: student.scores.map(sc => sc.score)
         };
     }
 
-
+    async getStudentExist(userName){
+        const existed = await userRepository.findByUserName(userName);
+        if (existed) {
+            return {
+                success: false,
+                message: "Username already exists"
+            };
+        }
+        return {
+            success: true,
+            message: "Username not found"
+        };
+    }
 
 }
 

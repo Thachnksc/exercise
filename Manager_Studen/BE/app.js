@@ -21,16 +21,6 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, "../FE")));
-
-app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "../FE/index.html"));
-});
-
-app.get("/", (req, res) => {
-    res.redirect("/login");
-});
-
 app.post("/login", loginController);
 
 app.get("/students", authMiddleware, adminOnly, getAllStudentsScoreController);

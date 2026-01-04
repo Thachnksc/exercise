@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId    String   @id @db.VarChar(45)
+  userName  String   @unique @db.VarChar(45)
+  password  String   @db.VarChar(255)
+  roleId    Int
+
+  role      Role     @relation(fields: [roleId], references: [roleId])
+  scores    ScoreStudent[]   // 🔧 CHANGED: 1 user - N scores
+
+  @@map("users")
+}
+
+model Role {
+  roleId   Int     @id @default(autoincrement())
+  roleName String  @unique @db.VarChar(45)
+
+  users    User[]
+
+  @@map("role")
+}
+
+model ScoreStudent {
+  scoreId Int     @id @default(autoincrement()) // 🔧 CHANGED
+  userId  String  @db.VarChar(45)
+  score   Float?
+
+  user    User    @relation(fields: [userId], references: [userId])
+
+  @@map("score_student")
+}
