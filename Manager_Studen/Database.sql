@@ -27,7 +27,9 @@ DROP TABLE IF EXISTS `role`;
 CREATE TABLE `role` (
   `roleId` int NOT NULL AUTO_INCREMENT,
   `roleName` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`roleId`)
+  PRIMARY KEY (`roleId`),
+  UNIQUE KEY `roleId_UNIQUE` (`roleId`),
+  UNIQUE KEY `roleName_UNIQUE` (`roleName`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -78,9 +80,11 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `userId` varchar(45) NOT NULL,
   `userName` varchar(45) NOT NULL,
-  `password` varchar(45) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `roleId` int DEFAULT NULL,
   PRIMARY KEY (`userId`),
+  UNIQUE KEY `userName_UNIQUE` (`userName`),
+  UNIQUE KEY `userId_UNIQUE` (`userId`),
   KEY `fk_user_role_idx` (`roleId`),
   CONSTRAINT `fk_user_role` FOREIGN KEY (`roleId`) REFERENCES `role` (`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -92,7 +96,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('ad001','admin','Admin@123',1),('st001','student','Asd@123',2),('st002','long','Asd@345',2),('st003','nam','Qwe@123',2),('st004','linh','Asd@123',2);
+INSERT INTO `users` VALUES ('ad001','admin','$2b$10$wATQLgLmsHItaUCQWJls4.XeF1N9V7Iz1yEVEQnKV2cG8Yc6DjMsi',1),('st001','student','$2b$10$leY7tmmd24H1pKktmO1Ige4DPVPC.B.tb1iyrcI2dt1XWDN5hbHce',2),('st002','long','$2b$10$z41UcK0z/WvgYhKQUGu8Pe3al8y3jL04clfqxdI284bB1kd3PVEK2',2),('st003','nam','$2b$10$9HVgDf/qWn5i.dlH0aktle.21hLMltcX16KIkz/eMSenoA6C7cof6',2),('st004','linh','$2b$10$Ivhgz435vRs7DYC8JIt5JOPikCajuNv7JUJkbmCe3Nk4wPFJ8o6yi',2),('st005','minh','$2b$10$k2/sHYN.pB98piFCLwjcgO0F96JISNvyXgmagNB3dsmaBGbUOEty6',2),('st007','thach','$2b$10$U65uVWS0ettRbHEHvY8o..1e//kR7xHgM3mrxXMputaacfy01Ut/O',2);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -105,4 +109,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-24  3:38:05
+-- Dump completed on 2026-01-06  0:58:18

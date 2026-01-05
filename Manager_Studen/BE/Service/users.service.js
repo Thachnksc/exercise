@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const z = require("zod");
 
-require('dotenv').config();
+//require('dotenv').config();
 const SECRET_KEY = process.env.SECRET_KEY;
 
 class userService {
